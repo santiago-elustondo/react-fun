@@ -8,16 +8,24 @@
    <div id="react-root"></div>
    <script type="text/babel">
 
-     class MyComponent extends React.Component {
-       render () {
-         return <h1> this is my message: {this.props.message} </h1>
-       }
-     }
+    class MyBorder extends React.Component {
+      render () {
+        return <div style={{ border: '2px solid red' }}> {this.props.children} </div>
+      }
+    }
 
-     ReactDOM.render(
-       <MyComponent message='hello'/>,
-       document.getElementById('react-root')
-     )
+    class MyComponent extends React.Component {
+      render () {
+        return <h1> this is my message: {this.props.message} </h1>
+      }
+    }
+
+    ReactDOM.render(
+      <MyBorder>
+        <MyComponent message='hello'/>
+      </MyBorder>,
+      document.getElementById('react-root')
+    )
 
    </script>
  </body>

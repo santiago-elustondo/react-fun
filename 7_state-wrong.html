@@ -8,6 +8,12 @@
    <div id="react-root"></div>
    <script type="text/babel">
 
+    class MyBorder extends React.Component {
+      render () {
+        return <div style={{ border: '2px solid red' }}> {this.props.children} </div>
+      }
+    }
+
     class MyComponent extends React.Component {
       
       constructor() {
@@ -33,10 +39,12 @@
     }
 
 
-     ReactDOM.render(
-       <MyComponent message='hello'/>,
-       document.getElementById('react-root')
-     )
+    ReactDOM.render(
+      <MyBorder>
+        <MyComponent message='hello'/>
+      </MyBorder>,
+      document.getElementById('react-root')
+    )
 
    </script>
  </body>
