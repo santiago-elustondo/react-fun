@@ -139,6 +139,18 @@ export class ThinkerSDK {
     return { ...thought, user, comments: commentsWithUser }
   }
 
+  async addThought({ content }) {
+    const response = await endpoints.addThought({ 
+      userId: this._user._id, 
+      content, 
+      token: this._token 
+    })
+
+    const thought = response.body
+
+    return { ...thought, user: this._user }
+  }
+
   async addComment({ userId, thoughtId, content }) {
     const response = await endpoints.addCommentForThought({ userId, thoughtId, content, token: this._token })
     const comment = response.body
@@ -158,7 +170,7 @@ export class ThinkerSDK {
   }
 
   _commentWatchers = {}
-  subscribeToComments({ userId, thoughtId, handler = () => {}, errHandler = () => {} }){
+  subscribeToComments({ userId, thoughtId, handler = () => {} }){
 
     if (!this._commentWatchers[thoughtId]) 
       this._commentWatchers[thoughtId] = {
@@ -187,23 +199,19 @@ export class ThinkerSDK {
           w.handlers.forEach(h => setTimeout(() => h(w.currentVal)))
 
         }, 2000),
-        handlers: [],
-        errHandlers: []
+        handlers: []
       }
     
     const w = this._commentWatchers[thoughtId]
     
     if (!w.handlers.includes(handler))
       w.handlers.push(handler)
-
-    if (!w.errHandlers.includes(errHandler))
-      w.errHandlers.push(errHandler)
     
     if (w.currentVal) 
       setTimeout(() => handler(w.currentVal))
   }
 
-  unsubscribeToComments({ userId, thoughtId, handler = () => {}, errHandler = () => {} }) {
+  unsubscribeToComments({ thoughtId, handler = () => {} }) {
     const w = this._commentWatchers[thoughtId]
 
     w.handlers = w.handlers.filter(h => h !== handler)
@@ -211,73 +219,6 @@ export class ThinkerSDK {
     if (!w.handlers.length) {
       clearInterval(w.interval)
       delete this._commentWatchers[thoughtId]
-    }
-  }
-
-  // =========
-
-  async getFollowers({ userId }) {
-    const followersResponse = await endpoints.getUserFollowers({ userId, token: this._token })
-    if (followersResponse.response.ok) return followersResponse.body
-    else return [] // fails (500) when empty
-  }
-
-  async getFollowings({ userId }) {
-    const followingResponse = await endpoints.getUserFollowing({ userId, token: this._token })
-    if (followingResponse.response.ok) return followingResponse.body
-    else return [] // fails (500) when empty
-  }
-
-  async follow({ userId }) {
-    const followResponse = await endpoints.followUser({ 
-      followerId: this._user._id, 
-      broadcasterId: userId, 
-      token: this._token 
-    })
-    return followResponse.body
-  }
-
-  async unfollow({ userId }) {
-    console.log(userId)
-    const unfollowResponse = await endpoints.unfollowUser({ 
-      followerId: this._user._id, 
-      broadcasterId: userId, 
-      token: this._token 
-    })
-    return unfollowResponse.body
-  }
-
-  async getThought({ thoughtId, userId }) {
-    const allUsers = await this.listUsers()
-    const user = allUsers.find(u => u._id === userId)
-    const thoughts = await this.listUserThoughts({ userId })
-    const thought = thoughts.find(t => t._id === thoughtId)
-    const commentsResponse = await endpoints.getCommentsForThought({ userId, thoughtId, token: this._token })
-    const comments = commentsResponse.body
-    comments.sort((a, b) => Date.parse(a.created) < Date.parse(b.created) ? 1 : -1 )
-    
-    const commentsWithUser = comments.map(comment => ({
-      ...comment,
-      user: allUsers.find(u => comment.userId === u._id)
-    }))
-
-    return { ...thought, user, comments: commentsWithUser }
-  }
-
-  async addThought({ content }) {
-    const response = await endpoints.addThought({ 
-      userId: this._user._id, 
-      content, 
-      token: this._token 
-    })
-
-    console.log(response)
-
-    const thought = response.body
-
-    return {
-      ...thought,
-      user: this._user
     }
   }
 
