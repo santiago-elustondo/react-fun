@@ -3,11 +3,10 @@ import { withRouter } from "react-router-dom";
 import { Grid, TextField, LinearProgress, Typography, Button } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
 
-import { thinker } from './thinker-sdk.singleton'
-import { arrayOf } from './utils.functions'
-import { apiService } from 'api/service.singleton'
-import { ThoughtCard } from './components'
-import { screenWidth, SCREEN_SIZE } from 'screen-width.broadcaster'
+import { thinker } from 'thinker-sdk.singleton'
+import { screenSize, SCREEN_SIZE } from 'screen-size.singleton'
+import { arrayOf } from 'utils.functions'
+import { ThoughtCard } from './ThoughtCard'
 
 const styles = theme => ({
   root: {
@@ -32,13 +31,13 @@ const styles = theme => ({
   }
 })
 
-export const FindUsers = withRouter(withStyles(styles)(
+export const FeedPage = withRouter(withStyles(styles)(
   class extends React.PureComponent {
 
     state = {
       loading: true,
       submitting: false,
-      thoughts:[],
+      thoughts: [],
       searchString: '',
       thoughtTxt: '',
       numberOfCols: this.deriveNumberOfCols()
@@ -46,13 +45,13 @@ export const FindUsers = withRouter(withStyles(styles)(
 
     constructor() {
       super()
-      screenWidth.emitter.subscribe((size) => {
+      screenSize.emitter.subscribe((size) => {
         this.setState({ numberOfCols: this.deriveNumberOfCols() })
       })
     }
 
     deriveNumberOfCols() {
-      return screenWidth.isBiggerOrEqualTo(SCREEN_SIZE.TABLET_SM) ? 3 : 2
+      return screenSize.isBiggerOrEqualTo(SCREEN_SIZE.TABLET_SM) ? 3 : 2
     }
 
     async fetchThoughts() {
@@ -64,9 +63,7 @@ export const FindUsers = withRouter(withStyles(styles)(
       const { thoughts, thoughtTxt } = this.state
 
       this.setState({ submitting: true })
-
-      const thought = await apiService.addThought({ content: thoughtTxt })
-
+      const thought = await thinker.addThought({ content: thoughtTxt })
       this.setState({
         submitting: false,
         thoughtTxt: '',
@@ -114,7 +111,7 @@ export const FindUsers = withRouter(withStyles(styles)(
             />
           </Grid>
           <Grid item xs={12} sm={10} lg={8} style={{width: '100%'}}>
-            <Grid container className={classes.root} spacing={16} justify="space-around" alignItems="left" style={{ width:'100%' }}>
+            <Grid container className={classes.root} spacing={16} justify="space-around" style={{ width:'100%' }}>
               {
                 arrayOf(numberOfCols).map((_, columnIndex) => 
                   <Grid key={columnIndex} item xs={12 / numberOfCols}>

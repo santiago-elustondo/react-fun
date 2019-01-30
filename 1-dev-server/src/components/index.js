@@ -1,2 +1,3 @@
 export * from './ThoughtCard'
-export * from './Feed'
+export * from './FeedPage'
+export * from './ThoughtPage'

@@ -69,6 +69,11 @@ export class ThinkerSDK {
     return response.body
   }
 
+  async fetchUser({ userId }) {
+    const allUsers = await this.fetchUsers()
+    return allUsers.find(u => u._id === userId)
+  }
+
   // deprecated
   async listUserThoughts({ userId }) {
     return this.fetchUserThoughts({ userId })
@@ -86,7 +91,7 @@ export class ThinkerSDK {
     return this.fetchComments({ thoughtId, userId })
   }
 
-  async fetchCommentsForThought({ thoughtId, userId }) {
+  async fetchComments({ thoughtId, userId }) {
     const allUsers = await this.fetchUsers()
     const commentsResponse = await endpoints.getCommentsForThought({ userId, thoughtId, token: this._token })
     const comments = commentsResponse.body
@@ -110,17 +115,85 @@ export class ThinkerSDK {
         }))
       ), [])
     const commentsForThoughts = await Promise.all(
-      allThoughts.map(t => this.fetchCommentsForThought({ thoughtId: t._id, userId: t.user._id }))
+      allThoughts.map(t => this.fetchComments({ thoughtId: t._id, userId: t.user._id }))
     )
     allThoughts.forEach((thought, i) => thought.comments = commentsForThoughts[i])
     allThoughts.sort((a, b) => Date.parse(a.created) < Date.parse(b.created) ? 1 : -1 )
     return allThoughts
   }
 
-  async getUser({ userId }) {
-    const allUsers = await this.listUsers()
-    return allUsers.find(u => u._id === userId)
+  async fetchThought({ thoughtId, userId }) {
+    const allUsers = await this.fetchUsers()
+    const user = allUsers.find(u => u._id === userId)
+    const thoughts = await this.fetchUserThoughts({ userId })
+    const thought = thoughts.find(t => t._id === thoughtId)
+    const commentsResponse = await endpoints.getCommentsForThought({ userId, thoughtId, token: this._token })
+    const comments = commentsResponse.body
+    comments.sort((a, b) => Date.parse(a.created) < Date.parse(b.created) ? 1 : -1 )
+    
+    const commentsWithUser = comments.map(comment => ({
+      ...comment,
+      user: allUsers.find(u => comment.userId === u._id)
+    }))
+
+    return { ...thought, user, comments: commentsWithUser }
   }
+
+  async addComment({ userId, thoughtId, content }) {
+    const response = await endpoints.addCommentForThought({ userId, thoughtId, content, token: this._token })
+    const comment = response.body
+
+    return { ...comment, user: this._user }
+  }
+
+  _commentWatchers = {}
+  subscribeToComments({ userId, thoughtId, handler = () => {}, errHandler = () => {} }){
+
+    if (!this._commentWatchers[thoughtId]) 
+      this._commentWatchers[thoughtId] = {
+        currentVal: undefined,
+        interval: setInterval(async () => {
+
+          const commentsResponse = await endpoints.getCommentsForThought({ 
+            userId, 
+            thoughtId, 
+            token: this._token 
+          })
+
+          const allUsers = await this.fetchUsers()
+
+          const comments = commentsResponse.body
+
+          const commentsWithUser = comments.map(comment => ({
+            ...comment,
+            user: allUsers.find(u => comment.userId === u._id)
+          }))
+
+          const w = this._commentWatchers[thoughtId]
+          commentsWithUser.sort((a, b) => Date.parse(a.created) < Date.parse(b.created) ? 1 : -1 )
+          
+          w.currentVal = commentsWithUser
+          w.handlers.forEach(h => setTimeout(() => h(w.currentVal)))
+
+        }, 2000),
+        handlers: [],
+        errHandlers: []
+      }
+    
+    const w = this._commentWatchers[thoughtId]
+    
+    if (!w.handlers.includes(handler))
+      w.handlers.push(handler)
+
+    if (!w.errHandlers.includes(errHandler))
+      w.errHandlers.push(errHandler)
+    
+    if (w.currentVal) 
+      setTimeout(() => handler(w.currentVal))
+  }
+
+  // =========
+
 
   async getUserComplete({ userId }) {
     const user = await this.getUser({ userId })
@@ -195,70 +268,6 @@ export class ThinkerSDK {
     }))
 
     return { ...thought, user, comments: commentsWithUser }
-  }
-
-  _commentWatchers = {}
-
-  subscribeToComments({ userId, thoughtId, handler = () => {}, errHandler = () => {} }){
-
-    if (!this._commentWatchers[thoughtId]) 
-      this._commentWatchers[thoughtId] = {
-        currentVal: undefined,
-        interval: setInterval(async () => {
-
-          const commentsResponse = await endpoints.getCommentsForThought({ 
-            userId, 
-            thoughtId, 
-            token: this._token 
-          })
-
-          // not checking if listUsers fails, so why check at all?
-          // if (commentsResponse.response.ok) {
-            const allUsers = await this.listUsers()
-
-            const comments = commentsResponse.body
-
-            const commentsWithUser = comments.map(comment => ({
-              ...comment,
-              user: allUsers.find(u => comment.userId === u._id)
-            }))
-
-            const w = this._commentWatchers[thoughtId]
-            commentsWithUser.sort((a, b) => Date.parse(a.created) < Date.parse(b.created) ? 1 : -1 )
-            
-            w.currentVal = commentsWithUser
-            w.handlers.forEach(h => setTimeout(() => h(w.currentVal)))
-          // } else {
-          //   w.errHandlers.forEach(h => setTimeout(() => h(commentsResponse.response.code)))
-          // }
-
-        }, 2000),
-        handlers: [],
-        errHandlers: []
-      }
-    
-    const w = this._commentWatchers[thoughtId]
-    
-    if (!w.handlers.includes(handler))
-      w.handlers.push(handler)
-
-    if (!w.errHandlers.includes(errHandler))
-      w.errHandlers.push(errHandler)
-    
-    if (w.currentVal) 
-      setTimeout(() => handler(w.currentVal))
-  }
-
-
-  async addComment({ userId, thoughtId, content }) {
-    const response = await endpoints.addCommentForThought({ userId, thoughtId, content, token: this._token })
-    const comment = response.body
-    const user = await this.getUser({ userId })
-
-    return {
-      ...comment,
-      user
-    }
   }
 
   async addThought({ content }) {

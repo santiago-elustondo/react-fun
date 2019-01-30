@@ -6,12 +6,10 @@ import { Grid, TextField, Paper, Button, IconButton, Typography, AppBar, Toolbar
 import { withStyles } from '@material-ui/core/styles'
 
 import { thinker } from 'thinker-sdk.singleton'
-import { Feed } from './components'
+import { FeedPage, ThoughtPage } from './components'
 
-import { apiService } from 'api/service.singleton'
 import { LoginPage } from './login-page.connected'
 import { AppFrame } from './app-frame'
-import { ThoughtDetails } from './thought-details'
 import { UserDetails } from './user-page'
 
 const styles = {
@@ -60,9 +58,9 @@ class App extends Component {
               <Route path='/login' component={LoginPage}/>
               <AppFrame>
                 <Switch>
-                  <Route path='/feed' component={Feed}/>
+                  <Route path='/feed' component={FeedPage}/>
                   <Route path='/user/:userId/thought/:thoughtId' render={
-                    ({ match }) => <ThoughtDetails {...match.params} />
+                    ({ match }) => <ThoughtPage {...match.params} />
                   }/>
                   <Route path='/user/:userId' render={
                     ({ match }) => <UserDetails {...match.params} />

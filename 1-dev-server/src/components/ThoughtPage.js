@@ -1,9 +1,9 @@
-import React, { Component } from 'react'
-import { withRouter } from "react-router-dom";
+import React from 'react'
+import { withRouter } from 'react-router-dom'
 import { Grid, TextField, LinearProgress, Typography, Paper, Button } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
 
-import { apiService } from 'api/service.singleton'
+import { thinker } from '../thinker-sdk.singleton'
 
 const styles = theme => ({
   root: {
@@ -28,8 +28,8 @@ const styles = theme => ({
   }
 })
 
-export const ThoughtDetails = withRouter(withStyles(styles)(
-  class extends Component {
+export const ThoughtPage = withRouter(withStyles(styles)(
+  class extends React.PureComponent {
 
     state = {
       loading: true,
@@ -41,12 +41,8 @@ export const ThoughtDetails = withRouter(withStyles(styles)(
     async fetchData() {
       const { thoughtId, userId } = this.props
 
-      const thought = await apiService.getThought({ thoughtId, userId })
-
-      this.setState({
-        loading: false,
-        thought
-      })
+      const thought = await thinker.fetchThought({ thoughtId, userId })
+      this.setState({ loading: false, thought })
     }
 
     async submitComment() {
@@ -54,8 +50,7 @@ export const ThoughtDetails = withRouter(withStyles(styles)(
       const { commentTxt, thought } = this.state
 
       this.setState({ submitting: true })
-
-      const comment = await apiService.addComment({ thoughtId, userId, content: commentTxt })
+      const comment = await thinker.addComment({ thoughtId, userId, content: commentTxt })
 
       this.setState({ 
         submitting: false,
@@ -69,7 +64,7 @@ export const ThoughtDetails = withRouter(withStyles(styles)(
     componentDidMount() {
       const { userId, thoughtId } = this.props
       this.fetchData() 
-      apiService.subscribeToComments({
+      thinker.subscribeToComments({
         thoughtId, userId, 
         handler: this._handleComments
       })
@@ -87,7 +82,7 @@ export const ThoughtDetails = withRouter(withStyles(styles)(
 
     render() {
       const { thought, loading, commentTxt } = this.state
-      const { userId, thoughtId, classes, history } = this.props
+      const { classes, history } = this.props
     
       return loading ? (
         <LinearProgress /> 

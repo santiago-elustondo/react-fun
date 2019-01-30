@@ -4,8 +4,7 @@ import { Grid, TextField,  Paper, Typography, Tabs, Tab } from '@material-ui/cor
 import { withStyles } from '@material-ui/core/styles'
 
 import { apiService } from 'api/service.singleton'
-import { UserCard } from './user-card.pure'
-import { LoginForm } from './login-form.component'
+
 import { SignupForm } from './signup-form.component'
 
 const LOGO_URL = 'https://dumielauxepices.net/sites/default/files/half-life-clipart-lamp-630918-4022206.png'
