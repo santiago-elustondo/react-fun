@@ -1,0 +1,1 @@
+export { ThinkerSDK } from './service.class'
