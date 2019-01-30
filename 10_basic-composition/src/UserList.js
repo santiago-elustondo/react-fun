@@ -1,35 +1,45 @@
 import React from 'react'
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import Avatar from '@material-ui/core/Avatar';
-import ImageIcon from '@material-ui/icons/Image';
-import WorkIcon from '@material-ui/icons/Work';
-import BeachAccessIcon from '@material-ui/icons/BeachAccess';
+import List from '@material-ui/core/List'
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { UserListItem } from './UserListItem'
 
-const MOCK_DATA = [
-  {
-    username: 'johnny',
-    created: '2019-01-31',
-    _id: 1
-  },
-  {
-    username: 'sarah',
-    created: '2019-01-29',
-    _id: 2
-  },
-  {
-    username: 'kelly',
-    created: '2019-01-10',
-    _id: 3
-  }
-]
+// const MOCK_DATA = [
+//   {
+//     username: 'johnny',
+//     created: '2019-01-31',
+//     _id: 1
+//   },
+//   {
+//     username: 'sarah',
+//     created: '2019-01-29',
+//     _id: 2
+//   },
+//   {
+//     username: 'kelly',
+//     created: '2019-01-10',
+//     _id: 3
+//   }
+// ]
 
 export class UserList extends React.PureComponent {
 
-  state = { currentlyHovering: null }
+  state = { 
+    loading: true,
+    currentlyHovering: null,
+    users: null
+  }
+
+  async fetchUsers() {
+    const response = await fetch('http://node200.eastus.cloudapp.azure.com:5008/users')
+    const users = await response.json()
+
+    this.setState({ loading: false, users })
+  }
+
+  componentDidMount() {
+    this.fetchUsers()
+  }
 
   hoveringOver(user) {
     this.setState({ currentlyHovering: user })
@@ -43,30 +53,38 @@ export class UserList extends React.PureComponent {
   }
 
   render() {
-    const { currentlyHovering } = this.state
+    const { currentlyHovering, loading, users } = this.state
     return (
-      <List style={{ width: 200, marginLeft: 'auto', marginRight: 'auto' }}>
+      <div style={{ width: 200, marginTop: 20, marginLeft: 'auto', marginRight: 'auto' }}>
         {
-          MOCK_DATA.map(user => {
+          loading? (
+            <CircularProgress style={{ margin: 80 }}/>
+          ) : (
+            <List>
+              {
+                users.map(user => {
 
-            const color = (
-              currentlyHovering && 
-              (currentlyHovering._id === user._id)
-            ) ? 'lightgray' : undefined
+                  const color = (
+                    currentlyHovering && 
+                    (currentlyHovering._id === user._id)
+                  ) ? 'lightgray' : undefined
 
-            return (
-              <UserListItem 
-                key={user._id} 
-                user={user} 
-                onMouseEnter={u => this.hoveringOver(user)}
-                onMouseLeave={u => this.noLongerHoveringOver(user)}
-                color={color}
-              />
-            )
-            
-          })
+                  return (
+                    <UserListItem 
+                      key={user._id} 
+                      user={user} 
+                      onMouseEnter={u => this.hoveringOver(user)}
+                      onMouseLeave={u => this.noLongerHoveringOver(user)}
+                      color={color}
+                    />
+                  )
+                  
+                })
+              }
+            </List>
+          )
         }
-      </List>
+      </div>
     )
   }
 }
