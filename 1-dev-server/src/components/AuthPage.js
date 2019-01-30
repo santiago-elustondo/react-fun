@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { withRouter } from 'react-router-dom'
 import { Grid, Paper, Typography, Tabs, Tab } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
@@ -18,7 +18,7 @@ const styles = theme => ({
 })
 
 export const AuthPage = withRouter(withStyles(styles)(
-  class extends Component {
+  class extends React.PureComponent {
 
     state = { 
       tab: 0 
