@@ -70,6 +70,14 @@ export const ThoughtPage = withRouter(withStyles(styles)(
       })
     }
 
+    componentWillUnmount() {
+      const { userId, thoughtId } = this.props
+      thinker.unsubscribeToComments({
+        thoughtId, userId, 
+        handler: this._handleComments
+      })
+    }
+
     _handleComments = (comments) => {
       const { thought } = this.state
       this.setState({ 

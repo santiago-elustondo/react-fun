@@ -5,7 +5,7 @@ import { withStyles } from '@material-ui/core/styles'
 
 import { AuthForm } from './AuthForm'
 
-import lightbulbPNG from '../lightbulb.png'
+import lightbulbPNG from '../assets/lightbulb.png'
 
 const styles = theme => ({
   root: {

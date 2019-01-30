@@ -203,6 +203,17 @@ export class ThinkerSDK {
       setTimeout(() => handler(w.currentVal))
   }
 
+  unsubscribeToComments({ userId, thoughtId, handler = () => {}, errHandler = () => {} }) {
+    const w = this._commentWatchers[thoughtId]
+
+    w.handlers = w.handlers.filter(h => h !== handler)
+    
+    if (!w.handlers.length) {
+      clearInterval(w.interval)
+      delete this._commentWatchers[thoughtId]
+    }
+  }
+
   // =========
 
   async getFollowers({ userId }) {
