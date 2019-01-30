@@ -79,7 +79,9 @@ export const FeedPage = withRouter(withStyles(styles)(
       const { thoughts, searchString, loading, thoughtTxt, numberOfCols } = this.state
       const { classes, history } = this.props
 
-      const filteredThoughts = thoughts.filter(t => t.content.includes(searchString))
+      const filteredThoughts = thoughts.filter(
+        t => t.content.toLowerCase().includes(searchString.toLowerCase())
+      )
 
       return loading ? (
         <LinearProgress /> 

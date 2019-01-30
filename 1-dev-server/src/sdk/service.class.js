@@ -148,7 +148,7 @@ export class ThinkerSDK {
 
     const thought = response.body
 
-    return { ...thought, user: this._user }
+    return { ...thought, user: this._user, comments: [] }
   }
 
   async addComment({ userId, thoughtId, content }) {

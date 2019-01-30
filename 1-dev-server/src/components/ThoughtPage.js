@@ -54,6 +54,7 @@ export const ThoughtPage = withRouter(withStyles(styles)(
 
       this.setState({ 
         submitting: false,
+        commentTxt: '',
         thought: {
           ...thought,
           comments: [comment].concat(thought.comments),
