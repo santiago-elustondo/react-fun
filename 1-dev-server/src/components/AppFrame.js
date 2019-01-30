@@ -93,7 +93,7 @@ export const AppFrame = withRouter(withStyles(styles)(
       
       return (
         <>
-          <AppBar position="static" color="white" style={open ? { 
+          <AppBar position="static" color="inherit" style={open ? { 
             width: `calc(100% - ${drawerWidth}px)`,
             marginLeft: drawerWidth
           } : {}}>

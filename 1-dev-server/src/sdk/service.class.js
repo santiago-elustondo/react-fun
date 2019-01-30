@@ -205,20 +205,6 @@ export class ThinkerSDK {
 
   // =========
 
-  async getComments({ thoughtId, userId }) {
-    const allUsers = await this.listUsers()
-    const commentsResponse = await endpoints.getCommentsForThought({ userId, thoughtId, token: this._token })
-    const comments = commentsResponse.body
-    comments.sort((a, b) => Date.parse(a.created) < Date.parse(b.created) ? 1 : -1 )
-    
-    const commentsWithUser = comments.map(comment => ({
-      ...comment,
-      user: allUsers.find(u => comment.userId === u._id)
-    }))
-
-    return commentsWithUser
-  }
-
   async getFollowers({ userId }) {
     const followersResponse = await endpoints.getUserFollowers({ userId, token: this._token })
     if (followersResponse.response.ok) return followersResponse.body

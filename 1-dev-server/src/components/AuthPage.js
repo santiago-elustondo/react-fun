@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
-import { withRouter, Switch, Route, Redirect } from "react-router-dom";
-import { Grid, TextField,  Paper, Typography, Tabs, Tab } from '@material-ui/core'
+import { withRouter } from 'react-router-dom'
+import { Grid, Paper, Typography, Tabs, Tab } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
 
 import { AuthForm } from './AuthForm'
 
-import logoPNG from '../lightbulb.png'
+import lightbulbPNG from '../lightbulb.png'
 
 const styles = theme => ({
   root: {
@@ -26,7 +26,7 @@ export const AuthPage = withRouter(withStyles(styles)(
 
     render() {
       const { tab } = this.state
-      const { classes, history } = this.props
+      const { classes } = this.props
       
       return (
         <Grid container className={classes.root} spacing={16} justify="space-around" alignItems="center">
@@ -36,7 +36,8 @@ export const AuthPage = withRouter(withStyles(styles)(
                 <Grid item>
                   <img 
                     style={{ height: '150px' }}
-                    src={logoPNG} 
+                    alt='lightbulb'
+                    src={lightbulbPNG} 
                   />
                 </Grid>
                 <Grid item>

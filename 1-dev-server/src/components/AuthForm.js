@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { Grid, TextField, Typography, Button, CircularProgress} from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
 
@@ -7,7 +7,7 @@ import { thinker } from 'thinker-sdk.singleton'
 const styles = theme => ({ })
 
 export const AuthForm = withStyles(styles)(
-  class extends Component {
+  class extends React.PureComponent {
 
     state = { 
       waiting: false,
@@ -135,7 +135,7 @@ export const AuthForm = withStyles(styles)(
           <Typography component='p' style={{color: 'red' }}>
             {
               serverError 
-              || (signupMode && passwordRepeat && !passwordsMatch) && 'passwords don\'t match'
+              || ((signupMode && passwordRepeat && !passwordsMatch) && 'passwords don\'t match')
             }
           </Typography>
           {
