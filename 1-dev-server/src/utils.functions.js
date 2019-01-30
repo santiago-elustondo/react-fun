@@ -1,0 +1,1 @@
+export const doAsync = (fn, ms = 0) => setTimeout(fn, ms)

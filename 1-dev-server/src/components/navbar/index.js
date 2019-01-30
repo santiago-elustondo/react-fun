@@ -1,0 +1,1 @@
+export { Navbarc } from './navbar'
