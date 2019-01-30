@@ -6,11 +6,11 @@ import { Grid, TextField, Paper, Button, IconButton, Typography, AppBar, Toolbar
 import { withStyles } from '@material-ui/core/styles'
 
 import { thinker } from 'thinker-sdk.singleton'
+import { Feed } from './components'
 
 import { apiService } from 'api/service.singleton'
 import { LoginPage } from './login-page.connected'
 import { AppFrame } from './app-frame'
-import { FindUsers } from './find-users.connected'
 import { ThoughtDetails } from './thought-details'
 import { UserDetails } from './user-page'
 
@@ -41,7 +41,6 @@ class App extends Component {
   render() {
     const { classes, history } = this.props
     const { authState, isUserMenuOpen } = this.state
-    console.log(authState)
 
     const currentPath = history.location.pathname
     
@@ -61,7 +60,7 @@ class App extends Component {
               <Route path='/login' component={LoginPage}/>
               <AppFrame>
                 <Switch>
-                  <Route path='/feed' component={FindUsers}/>
+                  <Route path='/feed' component={Feed}/>
                   <Route path='/user/:userId/thought/:thoughtId' render={
                     ({ match }) => <ThoughtDetails {...match.params} />
                   }/>

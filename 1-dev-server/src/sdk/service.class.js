@@ -4,10 +4,10 @@ export class ThinkerSDK {
 
   constructor() {
     this._user = JSON.parse(localStorage.getItem('thinker-user'))
-    this.token = localStorage.getItem('thinker-token')
-    this.authState = 'LOADING'
-    this.authHandlers = []
-    if (this.token)
+    this._token = localStorage.getItem('thinker-token')
+    this._authState = 'LOADING'
+    this._authhandlers = []
+    if (this._token)
       this.tokenIsValid().then(isValid => {
         if (isValid) this._updateAuthState('LOGGED-IN')
         else this.logout()
@@ -15,28 +15,22 @@ export class ThinkerSDK {
     else this.logout()
   }
 
-  subscribeToAuthState(handler) {
-    this.authHandlers.push(handler)
-    setTimeout(() => handler(this.authState))
-  }
-
   user() {
     return this._user
   }
 
-  _updateAuthState(state) {
-    this.authState = state
-    this.authHandlers.forEach(h => setTimeout(() => h(state)))
+  subscribeToAuthState(handler) {
+    this._authhandlers.push(handler)
+    setTimeout(() => handler(this._authState))
   }
 
-  _setUser(user) {
-    localStorage.setItem('thinker-user', JSON.stringify(user))
-    this._user = user
-  }
-
-  _setToken(token) {
-    localStorage.setItem('thinker-token', token)
-    this.token = token
+  async tokenIsValid() {
+    if (!this._token) return false
+    const validateResponse = await endpoints.validateToken({ token: this._token })
+    return (
+      validateResponse.response.status === 200 &&
+      validateResponse.body._id === this._user._id 
+    )
   }
 
   async signup({ username, password }) {
@@ -65,25 +59,62 @@ export class ThinkerSDK {
     this._updateAuthState('LOGGED-OUT')
   }
 
-  async tokenIsValid() {
-    if (!this.token) return false
-    const validateResponse = await endpoints.validateToken({ token: this.token })
-    return (
-      validateResponse.response.status === 200 &&
-      validateResponse.body._id === this._user._id 
-    )
-  }
-
+  // deprecated
   async listUsers() {
+    return this.fetchUsers()
+  }
+  
+  async fetchUsers() {
     const response = await endpoints.listUsers()
     return response.body
   }
 
+  // deprecated
   async listUserThoughts({ userId }) {
-    const response = await endpoints.listUserThoughts({ userId, token: this.token })
+    return this.fetchUserThoughts({ userId })
+  }
+
+  async fetchUserThoughts({ userId }) {
+    const response = await endpoints.listUserThoughts({ userId, token: this._token })
     const thoughts = response.body
     thoughts.sort((a, b) => Date.parse(a.created) < Date.parse(b.created) ? 1 : -1 )
     return thoughts
+  }
+
+  // deprecated
+  async getComments({ thoughtId, userId }) {
+    return this.fetchComments({ thoughtId, userId })
+  }
+
+  async fetchCommentsForThought({ thoughtId, userId }) {
+    const allUsers = await this.fetchUsers()
+    const commentsResponse = await endpoints.getCommentsForThought({ userId, thoughtId, token: this._token })
+    const comments = commentsResponse.body
+    comments.sort((a, b) => Date.parse(a.created) < Date.parse(b.created) ? 1 : -1 )
+    const commentsWithUser = comments.map(comment => ({
+      ...comment,
+      user: allUsers.find(u => comment.userId === u._id)
+    }))
+    return commentsWithUser
+  }
+
+  async fetchThoughts() {
+    const users = await this.fetchUsers()
+    const userThoughts = await Promise.all(
+      users.map(u => this.fetchUserThoughts({ userId: u._id }))
+    )
+    const allThoughts = userThoughts.reduce((allThoughts, thoughtsOfUser, i) => 
+      allThoughts.concat(
+        thoughtsOfUser.map(thought => Object.assign(thought, { 
+          user: users[i]
+        }))
+      ), [])
+    const commentsForThoughts = await Promise.all(
+      allThoughts.map(t => this.fetchCommentsForThought({ thoughtId: t._id, userId: t.user._id }))
+    )
+    allThoughts.forEach((thought, i) => thought.comments = commentsForThoughts[i])
+    allThoughts.sort((a, b) => Date.parse(a.created) < Date.parse(b.created) ? 1 : -1 )
+    return allThoughts
   }
 
   async getUser({ userId }) {
@@ -106,7 +137,7 @@ export class ThinkerSDK {
 
   async getComments({ thoughtId, userId }) {
     const allUsers = await this.listUsers()
-    const commentsResponse = await endpoints.getCommentsForThought({ userId, thoughtId, token: this.token })
+    const commentsResponse = await endpoints.getCommentsForThought({ userId, thoughtId, token: this._token })
     const comments = commentsResponse.body
     comments.sort((a, b) => Date.parse(a.created) < Date.parse(b.created) ? 1 : -1 )
     
@@ -119,13 +150,13 @@ export class ThinkerSDK {
   }
 
   async getFollowers({ userId }) {
-    const followersResponse = await endpoints.getUserFollowers({ userId, token: this.token })
+    const followersResponse = await endpoints.getUserFollowers({ userId, token: this._token })
     if (followersResponse.response.ok) return followersResponse.body
     else return [] // fails (500) when empty
   }
 
   async getFollowings({ userId }) {
-    const followingResponse = await endpoints.getUserFollowing({ userId, token: this.token })
+    const followingResponse = await endpoints.getUserFollowing({ userId, token: this._token })
     if (followingResponse.response.ok) return followingResponse.body
     else return [] // fails (500) when empty
   }
@@ -134,7 +165,7 @@ export class ThinkerSDK {
     const followResponse = await endpoints.followUser({ 
       followerId: this._user._id, 
       broadcasterId: userId, 
-      token: this.token 
+      token: this._token 
     })
     return followResponse.body
   }
@@ -144,7 +175,7 @@ export class ThinkerSDK {
     const unfollowResponse = await endpoints.unfollowUser({ 
       followerId: this._user._id, 
       broadcasterId: userId, 
-      token: this.token 
+      token: this._token 
     })
     return unfollowResponse.body
   }
@@ -154,7 +185,7 @@ export class ThinkerSDK {
     const user = allUsers.find(u => u._id === userId)
     const thoughts = await this.listUserThoughts({ userId })
     const thought = thoughts.find(t => t._id === thoughtId)
-    const commentsResponse = await endpoints.getCommentsForThought({ userId, thoughtId, token: this.token })
+    const commentsResponse = await endpoints.getCommentsForThought({ userId, thoughtId, token: this._token })
     const comments = commentsResponse.body
     comments.sort((a, b) => Date.parse(a.created) < Date.parse(b.created) ? 1 : -1 )
     
@@ -178,7 +209,7 @@ export class ThinkerSDK {
           const commentsResponse = await endpoints.getCommentsForThought({ 
             userId, 
             thoughtId, 
-            token: this.token 
+            token: this._token 
           })
 
           // not checking if listUsers fails, so why check at all?
@@ -220,7 +251,7 @@ export class ThinkerSDK {
 
 
   async addComment({ userId, thoughtId, content }) {
-    const response = await endpoints.addCommentForThought({ userId, thoughtId, content, token: this.token })
+    const response = await endpoints.addCommentForThought({ userId, thoughtId, content, token: this._token })
     const comment = response.body
     const user = await this.getUser({ userId })
 
@@ -234,7 +265,7 @@ export class ThinkerSDK {
     const response = await endpoints.addThought({ 
       userId: this._user._id, 
       content, 
-      token: this.token 
+      token: this._token 
     })
 
     console.log(response)
@@ -245,6 +276,21 @@ export class ThinkerSDK {
       ...thought,
       user: this._user
     }
+  }
+
+  _updateAuthState(state) {
+    this._authState = state
+    this._authhandlers.forEach(h => setTimeout(() => h(state)))
+  }
+
+  _setUser(user) {
+    localStorage.setItem('thinker-user', JSON.stringify(user))
+    this._user = user
+  }
+
+  _setToken(token) {
+    localStorage.setItem('thinker-token', token)
+    this._token = token
   }
 
 }

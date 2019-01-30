@@ -1,1 +1,2 @@
-export * from './navbar'
+export * from './ThoughtCard'
+export * from './Feed'
