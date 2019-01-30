@@ -3,11 +3,9 @@ import { withRouter, Switch, Route, Redirect } from "react-router-dom";
 import { Grid, TextField,  Paper, Typography, Tabs, Tab } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
 
-import { apiService } from 'api/service.singleton'
+import { AuthForm } from './AuthForm'
 
-import { SignupForm } from './signup-form.component'
-
-const LOGO_URL = 'https://dumielauxepices.net/sites/default/files/half-life-clipart-lamp-630918-4022206.png'
+import logoPNG from '../lightbulb.png'
 
 const styles = theme => ({
   root: {
@@ -19,7 +17,7 @@ const styles = theme => ({
   }
 })
 
-export const LoginPage = withRouter(withStyles(styles)(
+export const AuthPage = withRouter(withStyles(styles)(
   class extends Component {
 
     state = { 
@@ -38,7 +36,7 @@ export const LoginPage = withRouter(withStyles(styles)(
                 <Grid item>
                   <img 
                     style={{ height: '150px' }}
-                    src={LOGO_URL} 
+                    src={logoPNG} 
                   />
                 </Grid>
                 <Grid item>
@@ -63,7 +61,7 @@ export const LoginPage = withRouter(withStyles(styles)(
                   </Tabs>
                 </Grid>
                 <Grid item>
-                  <SignupForm 
+                  <AuthForm 
                     fieldWidth='250px'
                     mode={tab === 0 ? 'login' : 'signup'}
                   />

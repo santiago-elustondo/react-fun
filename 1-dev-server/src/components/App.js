@@ -1,12 +1,13 @@
-import React, { Component } from 'react'
-import { withRouter, Switch, Route, Redirect } from "react-router-dom";
-import MenuIcon from '@material-ui/icons/Menu'
-import AccountCircle from '@material-ui/icons/AccountCircle'
-import { Grid, TextField, Paper, Button, IconButton, Typography, AppBar, Toolbar,  MenuItem, Menu, LinearProgress } from '@material-ui/core'
-import { withStyles } from '@material-ui/core/styles'
+import React from 'react'
+import { withRouter, Switch, Route, Redirect } from 'react-router-dom'
+import { LinearProgress, withStyles } from '@material-ui/core'
 
 import { thinker } from 'thinker-sdk.singleton'
-import { FeedPage, ThoughtPage, UserPage, AuthPage, AppFrame } from './components'
+import { FeedPage } from './FeedPage' 
+import { ThoughtPage } from './ThoughtPage'
+import { UserPage } from './UserPage'
+import { AuthPage } from './AuthPage'
+import { AppFrame } from './AppFrame'
 
 const styles = {
   root: {
@@ -21,7 +22,7 @@ const styles = {
   },
 }
 
-class App extends Component {
+class App extends React.PureComponent {
 
   state = {
     authState: 'LOADING',
@@ -33,9 +34,9 @@ class App extends Component {
   }
   
   render() {
-    const { classes, history } = this.props
-    const { authState, isUserMenuOpen } = this.state
-    console.log(authState)
+    const { history } = this.props
+    const { authState } = this.state
+
     const currentPath = history.location.pathname
     
     return (
