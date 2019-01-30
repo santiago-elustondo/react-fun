@@ -1,3 +1,5 @@
 export * from './ThoughtCard'
-export * from './FeedPage'
 export * from './ThoughtPage'
+export * from './ThoughtPaper'
+export * from './FeedPage'
+export * from './UserPage'

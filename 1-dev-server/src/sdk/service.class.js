@@ -146,6 +146,17 @@ export class ThinkerSDK {
     return { ...comment, user: this._user }
   }
 
+  async fetchUserComplete({ userId }) {
+    const user = await this.fetchUser({ userId })
+    // const followers = await this.fetchFollowers({ userId })
+    const thoughts = await this.fetchUserThoughts({ userId })
+    const commentsForThoughts = await Promise.all(
+      thoughts.map(t => this.fetchComments({ thoughtId: t._id, userId: user._id }))
+    )
+    thoughts.forEach((thought, i) => thought.comments = commentsForThoughts[i])
+    return { ...user, thoughts }
+  }
+
   _commentWatchers = {}
   subscribeToComments({ userId, thoughtId, handler = () => {}, errHandler = () => {} }){
 
@@ -193,20 +204,6 @@ export class ThinkerSDK {
   }
 
   // =========
-
-
-  async getUserComplete({ userId }) {
-    const user = await this.getUser({ userId })
-    const followers = await this.getFollowers({ userId })
-    const thoughts = await this.listUserThoughts({ userId })
-    const commentsForThoughts = await Promise.all(
-      thoughts.map(t => this.getComments({ thoughtId: t._id, userId: user._id }))
-    )
-
-    thoughts.forEach((thought, i) => thought.comments = commentsForThoughts[i])
-    
-    return { ...user, thoughts, followers }
-  }
 
   async getComments({ thoughtId, userId }) {
     const allUsers = await this.listUsers()
