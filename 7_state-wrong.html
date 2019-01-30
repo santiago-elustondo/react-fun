@@ -1,0 +1,43 @@
+<html>
+ <header>
+   <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+   <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+ </header>
+ <body>
+   <div id="react-root"></div>
+   <script type="text/babel">
+
+    class MyComponent extends React.Component {
+      
+      constructor() {
+        super()
+        this.counter = 4
+      }
+
+      incrementCounter() {
+        this.counter++
+        console.log(this.counter)
+      }
+
+      render () {
+        return (
+          <div>
+            <h1> this is my message: {this.props.message} </h1>
+            <h2> counter: {this.counter} </h2>
+            <button onClick={() => this.incrementCounter()}> press me! </button>
+          </div>
+        )
+      }
+
+    }
+
+
+     ReactDOM.render(
+       <MyComponent message='hello'/>,
+       document.getElementById('react-root')
+     )
+
+   </script>
+ </body>
+</html>
