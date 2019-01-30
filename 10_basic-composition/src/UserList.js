@@ -17,8 +17,13 @@ const MOCK_DATA = [
   },
   {
     username: 'sarah',
-    created: '2019-01-31',
+    created: '2019-01-29',
     _id: 2
+  },
+  {
+    username: 'kelly',
+    created: '2019-01-10',
+    _id: 3
   }
 ]
 
