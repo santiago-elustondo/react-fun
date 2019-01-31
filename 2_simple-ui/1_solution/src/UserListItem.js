@@ -11,5 +11,5 @@ export const UserListItem = ({ user, color, onMouseEnter, onMouseLeave }) =>
     onMouseLeave={onMouseLeave}
   > 
     <Avatar> <AccountCircleIcon /> </Avatar>
-    <ListItemText primary={user.username} secondary={user.created}/>
+    <ListItemText primary={user.username} secondary={user.created.substring(0, 10)}/>
   </ListItem>

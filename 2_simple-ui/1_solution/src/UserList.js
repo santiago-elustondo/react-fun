@@ -1,6 +1,6 @@
 import React from 'react'
 import List from '@material-ui/core/List'
-import CircularProgress from '@material-ui/core/CircularProgress';
+import { Paper, Button, Typography, TextField, CircularProgress } from '@material-ui/core'
 
 import { UserListItem } from './UserListItem'
 
@@ -27,7 +27,8 @@ export class UserList extends React.PureComponent {
   state = { 
     loading: true,
     currentlyHovering: null,
-    users: null
+    users: null,
+    newUsername: ''
   }
 
   async fetchUsers() {
@@ -35,6 +36,24 @@ export class UserList extends React.PureComponent {
     const users = await response.json()
 
     this.setState({ loading: false, users })
+  }
+
+  async submitNewUser() {
+    const { newUsername, users } = this.state
+
+    if (!newUsername) return
+
+    // not actually querying
+    const newUser = {
+      username: newUsername,
+      created: (new Date()).toString(),
+      _id: Math.random().toString(36).substring(7)
+    }
+
+    this.setState(state => ({
+      users: [newUser].concat(state.users),
+      newUsername: ''
+    }))
   }
 
   componentDidMount() {
@@ -53,33 +72,50 @@ export class UserList extends React.PureComponent {
   }
 
   render() {
-    const { currentlyHovering, loading, users } = this.state
+    const { currentlyHovering, loading, users, newUsername } = this.state
     
     return loading? (
       <CircularProgress style={{ margin: 80 }}/>
     ) : (
-      <List>
-        {
-          users.map(user => {
+      <>
+        <Paper style={{ padding: 20 }}>
+          <Typography>
+            Add a new user
+          </Typography>
+          <TextField
+            value={newUsername}
+            onKeyDown={e => { if (e.key === 'Enter') this.submitNewUser() }}
+            onChange={e => this.setState({ newUsername: e.target.value })}
+          />
+          <Button
+            onClick={e => this.submitNewUser()}
+          > 
+            Submit
+          </Button>
+        </Paper>
+        <List>
+          {
+            users.map(user => {
 
-            const color = (
-              currentlyHovering && 
-              (currentlyHovering._id === user._id)
-            ) ? 'lightgray' : undefined
+              const color = (
+                currentlyHovering && 
+                (currentlyHovering._id === user._id)
+              ) ? 'lightgray' : undefined
 
-            return (
-              <UserListItem 
-                key={user._id} 
-                user={user} 
-                onMouseEnter={u => this.hoveringOver(user)}
-                onMouseLeave={u => this.noLongerHoveringOver(user)}
-                color={color}
-              />
-            )
-            
-          })
-        }
-      </List>
+              return (
+                <UserListItem 
+                  key={user._id} 
+                  user={user} 
+                  onMouseEnter={u => this.hoveringOver(user)}
+                  onMouseLeave={u => this.noLongerHoveringOver(user)}
+                  color={color}
+                />
+              )
+              
+            })
+          }
+        </List>
+      </>
     )
   }
 }
