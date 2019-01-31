@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { AuthForm } from './AuthForm'
+import { UserList } from './UserList'
 
 export class App extends React.PureComponent {
   render() {
@@ -11,7 +11,7 @@ export class App extends React.PureComponent {
         marginLeft: 'auto', 
         marginRight: 'auto' 
       }}>
-        <AuthForm/>
+        <UserList/>
       </div>
     )
   }

@@ -54,37 +54,32 @@ export class UserList extends React.PureComponent {
 
   render() {
     const { currentlyHovering, loading, users } = this.state
-    return (
-      <div style={{ width: 200, marginTop: 20, marginLeft: 'auto', marginRight: 'auto' }}>
+    
+    return loading? (
+      <CircularProgress style={{ margin: 80 }}/>
+    ) : (
+      <List>
         {
-          loading? (
-            <CircularProgress style={{ margin: 80 }}/>
-          ) : (
-            <List>
-              {
-                users.map(user => {
+          users.map(user => {
 
-                  const color = (
-                    currentlyHovering && 
-                    (currentlyHovering._id === user._id)
-                  ) ? 'lightgray' : undefined
+            const color = (
+              currentlyHovering && 
+              (currentlyHovering._id === user._id)
+            ) ? 'lightgray' : undefined
 
-                  return (
-                    <UserListItem 
-                      key={user._id} 
-                      user={user} 
-                      onMouseEnter={u => this.hoveringOver(user)}
-                      onMouseLeave={u => this.noLongerHoveringOver(user)}
-                      color={color}
-                    />
-                  )
-                  
-                })
-              }
-            </List>
-          )
+            return (
+              <UserListItem 
+                key={user._id} 
+                user={user} 
+                onMouseEnter={u => this.hoveringOver(user)}
+                onMouseLeave={u => this.noLongerHoveringOver(user)}
+                color={color}
+              />
+            )
+            
+          })
         }
-      </div>
+      </List>
     )
   }
 }

@@ -8,23 +8,30 @@
    <div id="react-root"></div>
    <script type="text/babel">
 
-    class MyBorder extends React.Component {
-      render () {
-        return <div style={{ border: '2px solid red' }}> {this.props.children} </div>
-      }
-    }
+    const MyBorder () => <div style={{ border: '2px solid red' }}> {this.props.children} </div>
 
     class MyComponent extends React.Component {
+      
+      constructor() {
+        super()
+        this.state = { counter: 4 }
+      }
+
+      incrementCounter() {
+        this.setState({ counter: this.state.counter + 1 })
+      }
+
       render () {
         return (
           <div>
             <h1> this is my message: {this.props.message} </h1>
-            <button onClick={() => alert('hello')}> press me! </button>
+            <h2 style={{ color: this.state.counter % 2 ? 'red' : 'blue' }}> counter: {this.state.counter} </h2>
+            <button onClick={() => this.incrementCounter()}> press me! </button>
           </div>
         )
       }
-    }
 
+    }
 
     ReactDOM.render(
       <MyBorder>
