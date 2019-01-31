@@ -1,8 +1,9 @@
 import React from 'react'
 import { LinearProgress } from '@material-ui/core'
 
-import { AuthPage } from './AuthPage'
 import { thinker } from 'thinker-sdk.singleton'
+import { AuthPage } from './AuthPage'
+import { FeedPage } from './FeedPage'
 
 export class App extends React.PureComponent {
 
@@ -23,10 +24,7 @@ export class App extends React.PureComponent {
     ) : authState === 'LOGGED-OUT' ? (
       <AuthPage/>
     ) : (
-      <div style={{ marginTop: 20, textAlign: 'center' }}>
-        <h4> logged in as {thinker.user().username} </h4>
-        <button onClick={() => thinker.logout()}> logout </button>
-      </div>
+      <FeedPage/>
     )
   }
 }
