@@ -50,7 +50,7 @@ type ThoughtWithUserAndCommentIds = {
   comments: Array<string> // comment ids
 }
 ```
-<br/>
+
 #### `async fetchUserThoughts({ userId })`
 Requires authenticated status.
 Returns `Array<Comment>` (ordered newest-to-oldest)
@@ -61,7 +61,7 @@ type Comment = {
   _id: string
 }
 ```
-<br/>
+
 #### `async fetchThought({ thoughtId, userId })`
 Requires authenticated status.
 `userId` is the id of the author.
@@ -77,7 +77,7 @@ type ThoughtWithUserAndComments = {
   comments: Array<CommentWithUser>
 }
 ```
-<br/>
+
 #### `async addThought({ content })`
 Requires authenticated status. 
 `content` is the `string` content of the thought
@@ -106,7 +106,7 @@ type UserWithCommentsWithThoughts = {
   thoughts: Array<ThoughtWithComments>
 }
 ```
-<br/>
+
 #### `subscribeToComments({ userId, thoughtId, handler })`
 Requires authenticated status.
 `userId` is the id of the author of the thought.
