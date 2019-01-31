@@ -1,1 +1,1 @@
-# react-training
+# thinker sdk
