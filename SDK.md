@@ -9,7 +9,7 @@ type User = {
   _id: string
 }
 ```
-<br/>
+
 #### `subscribeToAuthState(handler)`
 `handler` is a function with the shape:
 ```ts
