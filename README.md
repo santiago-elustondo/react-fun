@@ -1,1 +1,1 @@
-# react fundamentals workshop
+# React Fundamentals Workshop
